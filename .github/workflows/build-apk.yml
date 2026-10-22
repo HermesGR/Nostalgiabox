@@ -31,9 +31,18 @@ jobs:
         run: |
           ./gradlew assembleRelease
 
+      - name: Find APK
+        if: always()
+        run: |
+          echo "Searching for APK files..."
+          find retroarch -type f -name "*.apk" -print
+
       - name: Upload APK artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nostalgiabox-apk
           path: |
-            retroarch/pkg/android/phoenix/app/build/outputs/apk/**/*.apk
+            retroarch/**/build/outputs/apk/**/*.apk
+            retroarch/**/build/outputs/**/*.apk
+          if-no-files-found: warn
