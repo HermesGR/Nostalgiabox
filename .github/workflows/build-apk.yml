@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 11
 
       - name: Clone RetroArch
         run: |
@@ -29,12 +29,7 @@ jobs:
       - name: Build Android APK
         working-directory: retroarch/pkg/android/phoenix
         run: |
-          if [ -f gradlew ]; then
-            ./gradlew assembleRelease
-          else
-            echo "Gradle wrapper not found; RetroArch Android build requires additional setup."
-            exit 1
-          fi
+          ./gradlew assembleRelease
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
