@@ -1,0 +1,46 @@
+name: Build Nostalgiabox APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Nostalgiabox
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Clone RetroArch
+        run: |
+          git clone --depth 1 --branch v1.21.0 https://github.com/libretro/RetroArch.git retroarch
+
+      - name: Apply Nostalgiabox configuration
+        run: |
+          mkdir -p retroarch/pkg/android/phoenix/app/src/main/assets
+          cp config/retroarch.cfg retroarch/pkg/android/phoenix/app/src/main/assets/retroarch.cfg || true
+
+      - name: Build Android APK
+        working-directory: retroarch/pkg/android/phoenix
+        run: |
+          if [ -f gradlew ]; then
+            ./gradlew assembleRelease
+          else
+            echo "Gradle wrapper not found; RetroArch Android build requires additional setup."
+            exit 1
+          fi
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nostalgiabox-apk
+          path: |
+            retroarch/pkg/android/phoenix/app/build/outputs/apk/**/*.apk
